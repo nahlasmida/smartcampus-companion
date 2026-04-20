@@ -1,5 +1,8 @@
 from fastapi import APIRouter, HTTPException, status, Header
+from fastapi.responses import Response
 from typing import List, Optional
+from datetime import datetime
+
 from app.schemas.timetable import TimetableCreate, TimetableUpdate
 from app.services.timetable_service import (
     get_all_timetable,
@@ -10,6 +13,7 @@ from app.services.timetable_service import (
     delete_timetable_entry,
     get_current_class
 )
+from app.services.export_service import generate_json_export, generate_pdf_export
 
 ADMIN_SECRET = "campus-admin-2024"
 
@@ -47,6 +51,38 @@ async def get_timetable_entry(entry_id: str):
             detail="Timetable entry not found"
         )
     return entry
+
+# ============ EXPORT ENDPOINTS ============
+
+@router.get("/export/json")
+async def export_timetable_json():
+    """Export timetable as JSON file - Public endpoint"""
+    entries = await get_all_timetable()
+    
+    json_data = await generate_json_export(entries)
+    
+    return Response(
+        content=json_data,
+        media_type="application/json",
+        headers={
+            "Content-Disposition": f"attachment; filename=timetable_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
+        }
+    )
+
+@router.get("/export/pdf")
+async def export_timetable_pdf():
+    """Export timetable as PDF file - Public endpoint"""
+    entries = await get_all_timetable()
+    
+    pdf_bytes = await generate_pdf_export(entries)
+    
+    return Response(
+        content=pdf_bytes,
+        media_type="application/pdf",
+        headers={
+            "Content-Disposition": f"attachment; filename=timetable_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pdf"
+        }
+    )
 
 # ============ ADMIN ENDPOINTS ============
 
