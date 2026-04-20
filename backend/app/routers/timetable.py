@@ -1,23 +1,110 @@
-from fastapi import APIRouter, Depends
-from app.services.campus_service import get_timetable
-from app.dependencies.auth import get_current_user
+from fastapi import APIRouter, HTTPException, status, Header
+from typing import List, Optional
+from app.schemas.timetable import TimetableCreate, TimetableUpdate
+from app.services.timetable_service import (
+    get_all_timetable,
+    get_timetable_by_day,
+    get_timetable_by_id,
+    create_timetable_entry,
+    update_timetable_entry,
+    delete_timetable_entry,
+    get_current_class
+)
+
+ADMIN_SECRET = "campus-admin-2024"
 
 router = APIRouter(prefix="/timetable", tags=["Timetable"])
 
+# ============ PUBLIC ENDPOINTS ============
+
 @router.get("/")
-async def list_timetable(user=Depends(get_current_user)):
-    items = await get_timetable()
-    return [
-        {
-            "id": str(i.id),
-            "subject": i.subject,
-            "room": i.room,
-            "day": i.day,
-            "start_time": i.start_time,
-            "end_time": i.end_time,
-            "professor": i.professor,
-            "group": i.group,
-            "semester": i.semester
-        }
-        for i in items
-    ]
+async def list_timetable():
+    """Get all timetable entries - Public endpoint"""
+    entries = await get_all_timetable()
+    return entries
+
+@router.get("/day/{day}")
+async def list_timetable_by_day(day: str):
+    """Get timetable for a specific day - Public endpoint"""
+    entries = await get_timetable_by_day(day)
+    return entries
+
+@router.get("/current")
+async def current_class():
+    """Get the class currently happening - Public endpoint"""
+    entry = await get_current_class()
+    if not entry:
+        return {"message": "No class currently in session"}
+    return entry
+
+@router.get("/{entry_id}")
+async def get_timetable_entry(entry_id: str):
+    """Get a single timetable entry by ID - Public endpoint"""
+    entry = await get_timetable_by_id(entry_id)
+    if not entry:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Timetable entry not found"
+        )
+    return entry
+
+# ============ ADMIN ENDPOINTS ============
+
+@router.post("/")
+async def create_new_timetable_entry(
+    entry: TimetableCreate,
+    admin_key: Optional[str] = Header(None)
+):
+    """Create a new timetable entry - Admin only (use admin-key header)"""
+    
+    if not admin_key or admin_key != ADMIN_SECRET:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid or missing admin key"
+        )
+    
+    new_entry = await create_timetable_entry(entry)
+    return new_entry
+
+@router.put("/{entry_id}")
+async def update_existing_timetable_entry(
+    entry_id: str,
+    entry: TimetableUpdate,
+    admin_key: Optional[str] = Header(None)
+):
+    """Update a timetable entry - Admin only (use admin-key header)"""
+    
+    if not admin_key or admin_key != ADMIN_SECRET:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid or missing admin key"
+        )
+    
+    updated = await update_timetable_entry(entry_id, entry)
+    if not updated:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Timetable entry not found"
+        )
+    return updated
+
+@router.delete("/{entry_id}")
+async def delete_existing_timetable_entry(
+    entry_id: str,
+    admin_key: Optional[str] = Header(None)
+):
+    """Delete a timetable entry - Admin only (use admin-key header)"""
+    
+    if not admin_key or admin_key != ADMIN_SECRET:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid or missing admin key"
+        )
+    
+    deleted = await delete_timetable_entry(entry_id)
+    if not deleted:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Timetable entry not found"
+        )
+    return {"message": "Timetable entry deleted successfully"}

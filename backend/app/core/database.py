@@ -3,7 +3,7 @@ from motor.motor_asyncio import AsyncIOMotorClient
 from app.models.user import User
 from app.models.announcement import Announcement
 from app.models.event import Event
-from app.models.timetable import TimetableItem
+from app.models.timetable import Timetable  # ← CHANGED HERE
 
 async def init_db():
     # Connect to MongoDB (Docker container)
@@ -18,6 +18,6 @@ async def init_db():
     
     await init_beanie(
         database=database,
-        document_models=[User, Announcement, Event, TimetableItem]
+        document_models=[User, Announcement, Event, Timetable]  # ← CHANGED HERE
     )
     print("✅ Beanie initialized with smartcampus database")
