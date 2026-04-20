@@ -1,16 +1,20 @@
 from beanie import Document
 from datetime import datetime
 from typing import Optional
+
 from bson import ObjectId
 
 class Announcement(Document):
     title: str
-    body: str
+    content: str
+    author: str = "Admin"
     image_url: str = ""
-    category: str = "general"
-    is_pinned: bool = False
     created_at: datetime = datetime.utcnow()
-    author_id: Optional[str] = None
-
+    updated_at: datetime = datetime.utcnow()
+    is_pinned: bool = False
+    
     class Settings:
         name = "announcements"
+        
+    class Config:
+        json_encoders = {ObjectId: str}
