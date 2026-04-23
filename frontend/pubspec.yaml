@@ -1,5 +1,15 @@
+name: smart_campus_companion
+description: A mobile app for university campus navigation
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
 dependencies:
   flutter:
+    sdk: flutter
+  flutter_localizations:
     sdk: flutter
 
   # Networking
@@ -15,26 +25,30 @@ dependencies:
   flutter_secure_storage: ^9.0.0
 
   # Auth & Security
-  local_auth: ^2.2.0           # Biometrics (F1.3)
+  local_auth: ^2.2.0
 
   # Notifications
-  flutter_local_notifications: ^17.2.0   # F4.1
-  workmanager: ^0.5.2                    # F4.3
+  flutter_local_notifications: ^17.2.0
+  workmanager: ^0.5.2
 
   # Sensors & Hardware
-  geolocator: ^11.0.0          # F3.2
-  google_maps_flutter: ^2.6.0  # F3.2
-  image_picker: ^1.0.7         # F3.1
-  sensors_plus: ^4.0.2         # F3.3
-  connectivity_plus: ^6.0.3    # F2.3
-  permission_handler: ^11.3.1  # NF5
+  geolocator: ^11.0.0
+  google_maps_flutter: ^2.6.0
+  image_picker: ^1.0.7
+  sensors_plus: ^4.0.2
+  connectivity_plus: ^6.0.3
+  permission_handler: ^11.3.1
 
   # UI
-  cached_network_image: ^3.3.1  # NF2
+  cached_network_image: ^3.3.1
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  flutter_lints: ^3.0.0
   build_runner: ^2.4.8
   riverpod_generator: ^2.4.0
   hive_generator: ^2.0.1
+
+flutter:
+  uses-material-design: true

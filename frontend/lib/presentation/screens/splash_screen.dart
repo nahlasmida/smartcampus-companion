@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:smart_campus_companion/core/constants/color_constants.dart';
 import 'package:smart_campus_companion/core/routes/app_routes.dart';
-import 'package:smart_campus_companion/domain/presentation/widgets/campus_illustration.dart';
+import 'package:smart_campus_companion/presentation/widgets/campus_illustration.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
