@@ -1,10 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';  // ← ADD THIS IMPORT
 import 'package:smart_campus_companion/core/routes/app_routes.dart';
-import 'package:smart_campus_companion/core/routes/route_generator.dart';  // ← ADD THIS LINE
+import 'package:smart_campus_companion/core/routes/route_generator.dart';
 import 'package:smart_campus_companion/core/theme/app_theme.dart';
 
 void main() {
-  runApp(const SmartCampusCompanion());
+  runApp(
+    const ProviderScope(  // ← WRAP with ProviderScope
+      child: SmartCampusCompanion(),
+    ),
+  );
 }
 
 class SmartCampusCompanion extends StatelessWidget {
@@ -17,7 +22,7 @@ class SmartCampusCompanion extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
       initialRoute: AppRoutes.splash,
-      onGenerateRoute: RouteGenerator.generateRoute,  // ← Now this will work
+      onGenerateRoute: RouteGenerator.generateRoute,
     );
   }
 }

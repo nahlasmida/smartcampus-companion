@@ -28,15 +28,12 @@ dependencies:
   local_auth: ^2.2.0
 
   # Notifications
-  flutter_local_notifications: ^17.2.0
-  workmanager: ^0.5.2
 
   # Sensors & Hardware
   geolocator: ^11.0.0
   google_maps_flutter: ^2.6.0
   image_picker: ^1.0.7
   sensors_plus: ^4.0.2
-  connectivity_plus: ^6.0.3
   permission_handler: ^11.3.1
 
   # UI

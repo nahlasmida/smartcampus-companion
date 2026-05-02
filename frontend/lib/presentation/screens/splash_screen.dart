@@ -22,14 +22,12 @@ class _SplashScreenState extends State<SplashScreen>
   @override
   void initState() {
     super.initState();
-    // Set status bar style
     SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
       statusBarColor: Colors.transparent,
       statusBarIconBrightness: Brightness.light,
       statusBarBrightness: Brightness.dark,
     ));
 
-    // Initialize animations
     _controller = AnimationController(
       duration: const Duration(milliseconds: 2000),
       vsync: this,
@@ -43,20 +41,17 @@ class _SplashScreenState extends State<SplashScreen>
       CurvedAnimation(parent: _controller, curve: Curves.easeIn),
     );
 
-    _slideAnimation = Tween<Offset>(begin: const Offset(0, 0.5), end: Offset.zero)
-        .animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic));
+    _slideAnimation = Tween<Offset>(
+        begin: const Offset(0, 0.5), end: Offset.zero)
+        .animate(
+        CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic));
 
-    // Start animation
     _controller.forward();
-
-    // Navigate after delay
     _navigateToNext();
   }
 
   Future<void> _navigateToNext() async {
-    await Future.delayed(const Duration(milliseconds: 2800));
-    // TODO: Check if user is logged in via secure storage
-    // For now, go to login screen
+    await Future.delayed(const Duration(seconds: 60));
     if (mounted) {
       Navigator.pushReplacementNamed(context, AppRoutes.login);
     }
@@ -78,12 +73,10 @@ class _SplashScreenState extends State<SplashScreen>
         child: SafeArea(
           child: Stack(
             children: [
-              // Main content
               Center(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    // App Icon with scale animation
                     AnimatedBuilder(
                       animation: _scaleAnimation,
                       builder: (context, child) {
@@ -113,8 +106,6 @@ class _SplashScreenState extends State<SplashScreen>
                       },
                     ),
                     const SizedBox(height: 24),
-
-                    // App name with shimmer-like fade
                     FadeTransition(
                       opacity: _fadeAnimation,
                       child: Column(
@@ -129,12 +120,15 @@ class _SplashScreenState extends State<SplashScreen>
                             },
                             child: Text(
                               'Navigate Campus',
-                              style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                                    fontSize: 32,
-                                    fontWeight: FontWeight.bold,
-                                    letterSpacing: 1.2,
-                                    color: AppColors.white,
-                                  ),
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .headlineMedium
+                                  ?.copyWith(
+                                fontSize: 32,
+                                fontWeight: FontWeight.bold,
+                                letterSpacing: 1.2,
+                                color: AppColors.white,
+                              ),
                             ),
                           ),
                           const SizedBox(height: 12),
@@ -156,8 +150,6 @@ class _SplashScreenState extends State<SplashScreen>
                   ],
                 ),
               ),
-
-              // Bottom loading indicator
               Positioned(
                 bottom: 40,
                 left: 0,
@@ -168,14 +160,13 @@ class _SplashScreenState extends State<SplashScreen>
                     height: 32,
                     child: CircularProgressIndicator(
                       strokeWidth: 3,
-                      valueColor: AlwaysStoppedAnimation<Color>(AppColors.primary),
+                      valueColor:
+                      AlwaysStoppedAnimation<Color>(AppColors.primary),
                       backgroundColor: AppColors.white.withOpacity(0.3),
                     ),
                   ),
                 ),
               ),
-
-              // Custom illustration (fade in)
               Positioned.fill(
                 child: IgnorePointer(
                   child: FadeTransition(
