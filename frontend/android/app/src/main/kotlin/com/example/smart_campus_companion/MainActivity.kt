@@ -1,5 +1,5 @@
 package com.example.smart_campus_companion
 
-import io.flutter.embedding.android.FlutterActivity
+import io.flutter.embedding.android.FlutterFragmentActivity  // ← CHANGE
 
-class MainActivity : FlutterActivity()
+class MainActivity: FlutterFragmentActivity()  // ← CHANGE
