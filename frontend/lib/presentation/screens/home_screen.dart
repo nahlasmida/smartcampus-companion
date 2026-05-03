@@ -49,22 +49,27 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with WidgetsBindingObse
             if (homeState.isOffline)
               const SliverToBoxAdapter(child: OfflineBanner()),
 
-            // Header with Greeting - IMPROVED
+            // Header with Greeting
             SliverToBoxAdapter(
               child: _buildHeader(homeState.greeting),
             ),
 
-            // Today's Schedule Section - IMPROVED
+            // Today's Schedule Section
             SliverToBoxAdapter(
               child: _buildScheduleSection(homeState.todaySchedule),
             ),
 
-            // Upcoming Events Section - IMPROVED
+            // 🔵 NEW: Timetable & Map Action Buttons
+            SliverToBoxAdapter(
+              child: _buildActionButtons(),
+            ),
+
+            // Upcoming Events Section
             SliverToBoxAdapter(
               child: _buildEventsSection(homeState.upcomingEvents),
             ),
 
-            // Latest Announcements Section - IMPROVED
+            // Latest Announcements Section
             SliverToBoxAdapter(
               child: _buildAnnouncementsSection(homeState.recentAnnouncements),
             ),
@@ -256,7 +261,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with WidgetsBindingObse
       ),
       child: Row(
         children: [
-          // Time column
           Container(
             width: 70,
             padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
@@ -292,7 +296,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with WidgetsBindingObse
             ),
           ),
           const SizedBox(width: 16),
-          // Course info
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -332,6 +335,122 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with WidgetsBindingObse
             decoration: BoxDecoration(
               color: Color(int.parse(class_.color.replaceFirst('#', '0xFF'))),
               borderRadius: BorderRadius.circular(2),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // 🔵 NEW: Action Buttons Widget (Timetable & Map)
+  Widget _buildActionButtons() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+      child: Row(
+        children: [
+          // Timetable Button
+          Expanded(
+            child: GestureDetector(
+              onTap: () {
+                print('📅 Navigate to Timetable Screen');
+                Navigator.pushNamed(context, AppRoutes.timetable);
+              },
+              child: Container(
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [AppColors.primary, AppColors.primary],
+                  ),
+                  borderRadius: BorderRadius.circular(16),
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppColors.primary.withOpacity(0.3),
+                      blurRadius: 8,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(Icons.schedule, color: Colors.white, size: 24),
+                    const SizedBox(width: 12),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Timetable',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        Text(
+                          'View full schedule',
+                          style: TextStyle(
+                            color: Colors.white.withOpacity(0.8),
+                            fontSize: 11,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(width: 16),
+          // Map Button
+          Expanded(
+            child: GestureDetector(
+              onTap: () {
+                print('🗺️ Navigate to Map Screen');
+                Navigator.pushNamed(context, AppRoutes.campusMap);
+              },
+              child: Container(
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [AppColors.secondary, AppColors.secondary.withOpacity(0.8)],
+                  ),
+                  borderRadius: BorderRadius.circular(16),
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppColors.secondary.withOpacity(0.3),
+                      blurRadius: 8,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(Icons.map_outlined, color: Colors.white, size: 24),
+                    const SizedBox(width: 12),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Campus Map',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        Text(
+                          'Find your way',
+                          style: TextStyle(
+                            color: Colors.white.withOpacity(0.8),
+                            fontSize: 11,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
             ),
           ),
         ],
@@ -417,7 +536,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with WidgetsBindingObse
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    event.startTime.month.toString(),
+                    _getMonthAbbreviation(event.startTime.month),
                     style: const TextStyle(color: Colors.white, fontSize: 10),
                   ),
                   Text(
@@ -610,5 +729,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with WidgetsBindingObse
         ],
       ),
     );
+  }
+
+  String _getMonthAbbreviation(int month) {
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    return months[month - 1];
   }
 }

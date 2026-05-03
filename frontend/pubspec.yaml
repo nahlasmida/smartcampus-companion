@@ -27,7 +27,8 @@ dependencies:
   # Auth & Security
   local_auth: ^2.2.0
 
-  # Notifications
+  # URL Launcher (for PDF export - works on Web + Mobile)
+  url_launcher: ^6.2.5
 
   # Sensors & Hardware
   geolocator: ^11.0.0

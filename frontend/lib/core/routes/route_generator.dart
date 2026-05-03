@@ -3,6 +3,8 @@ import 'package:smart_campus_companion/core/routes/app_routes.dart';
 import 'package:smart_campus_companion/presentation/screens/splash_screen.dart';
 import 'package:smart_campus_companion/presentation/screens/login_screen.dart';
 import 'package:smart_campus_companion/presentation/screens/home_screen.dart';
+import 'package:smart_campus_companion/presentation/screens/timetable_screen.dart';
+import 'package:smart_campus_companion/presentation/screens/map_screen.dart';
 
 class RouteGenerator {
   static Route<dynamic> generateRoute(RouteSettings settings) {
@@ -15,6 +17,12 @@ class RouteGenerator {
 
       case AppRoutes.home:
         return MaterialPageRoute(builder: (_) => const HomeScreen());
+
+      case AppRoutes.timetable:
+        return MaterialPageRoute(builder: (_) => const TimetableScreen());
+
+      case AppRoutes.campusMap:
+        return MaterialPageRoute(builder: (_) => const MapScreen());
 
       default:
         return MaterialPageRoute(
