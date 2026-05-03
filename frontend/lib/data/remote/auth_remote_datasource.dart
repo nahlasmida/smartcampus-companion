@@ -9,7 +9,7 @@ class AuthRemoteDataSource {
   // ⚠️ IMPORTANT: Replace with your computer's IP address
   // Run 'ipconfig' in terminal to find your IP
   // Example: 'http://192.168.1.100:8000'
-  static const String baseUrl = 'http://192.168.1.14:8000'; // ← CHANGE THIS
+  static const String baseUrl = 'http://localhost:8000'; // ← CHANGE THIS
 
   /// POST /auth/login
   Future<LoginResponse> login(String email, String password) async {

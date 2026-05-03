@@ -29,7 +29,7 @@ class _SplashScreenState extends State<SplashScreen>
     ));
 
     _controller = AnimationController(
-      duration: const Duration(milliseconds: 2000),
+      duration: const Duration(milliseconds: 20),
       vsync: this,
     );
 

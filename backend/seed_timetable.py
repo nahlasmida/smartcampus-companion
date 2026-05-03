@@ -35,6 +35,15 @@ async def seed_timetable():
             color="#2196F3"
         ),
         Timetable(
+           course_name="Study Day",
+           teacher="Self Study",
+           day="Sunday",
+           start_time="10:00",
+           end_time="16:00",
+           room="Library",
+           color="#9C27B0"
+),
+        Timetable(
             course_name="Web Development",
             teacher="Dr. Karim",
             day="Tuesday",

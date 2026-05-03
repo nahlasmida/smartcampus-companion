@@ -5,7 +5,7 @@ class ValidationUtils {
   static String? validateEmail(String? email) {
     print('🔍 validateEmail called with: "$email"');
 
-    if (email == null || email.isEmpty) {
+    if (email == null  || email.isEmpty) {
       return 'Email is required';
     }
 
