@@ -244,11 +244,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
 
                             const SizedBox(height: 24),
 
-                            // Sign In Button - Connected to Backend
+                            // Sign In Button
                             GradientButton(
                               text: 'Sign In',
                               isLoading: loginState.isLoading,
-                              isEnabled: true,  // ← FORCE TO TRUE
+                              isEnabled: true,
                               onPressed: () async {
                                 print('👆 Sign In button pressed!');
                                 final success = await loginNotifier.login();
@@ -277,7 +277,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
 
                             const SizedBox(height: 24),
 
-                            // Biometric Button Only
+                            // Biometric Button
                             BiometricButton(
                               isAvailable: loginState.isBiometricAvailable,
                               onTap: () async {
@@ -294,7 +294,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
 
                             const SizedBox(height: 32),
 
-                            // Sign Up Link
+                            // Sign Up Link - Now navigates to Register Screen
                             Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
@@ -304,7 +304,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                                 ),
                                 GestureDetector(
                                   onTap: () {
-                                    print('👆 Sign Up clicked');
+                                    print('👆 Sign Up clicked - navigating to Register');
                                     Navigator.pushNamed(context, AppRoutes.register);
                                   },
                                   child: Text(

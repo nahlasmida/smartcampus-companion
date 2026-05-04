@@ -8,6 +8,7 @@ import 'package:smart_campus_companion/presentation/screens/map_screen.dart';
 
 import '../../presentation/screens/announcements_screen.dart';
 import '../../presentation/screens/events_screen.dart';
+import '../../presentation/screens/register_screen.dart';
 
 class RouteGenerator {
   static Route<dynamic> generateRoute(RouteSettings settings) {
@@ -17,7 +18,8 @@ class RouteGenerator {
 
       case AppRoutes.login:
         return MaterialPageRoute(builder: (_) => const LoginScreen());
-
+      case AppRoutes.register:
+        return MaterialPageRoute(builder: (_) => const RegisterScreen()); // ← ADD THIS
       case AppRoutes.home:
         return MaterialPageRoute(builder: (_) => const HomeScreen());
 
