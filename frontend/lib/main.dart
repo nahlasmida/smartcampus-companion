@@ -1,12 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';  // ← ADD THIS IMPORT
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:smart_campus_companion/core/routes/app_routes.dart';
 import 'package:smart_campus_companion/core/routes/route_generator.dart';
 import 'package:smart_campus_companion/core/theme/app_theme.dart';
+import 'package:smart_campus_companion/services/notification_service.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await NotificationService.initialize();
+
   runApp(
-    const ProviderScope(  // ← WRAP with ProviderScope
+    const ProviderScope(
       child: SmartCampusCompanion(),
     ),
   );

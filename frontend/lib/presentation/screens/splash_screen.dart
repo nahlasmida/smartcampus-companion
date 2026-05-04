@@ -51,7 +51,7 @@ class _SplashScreenState extends State<SplashScreen>
   }
 
   Future<void> _navigateToNext() async {
-    await Future.delayed(const Duration(seconds: 60));
+    await Future.delayed(const Duration(seconds: 10));
     if (mounted) {
       Navigator.pushReplacementNamed(context, AppRoutes.login);
     }

@@ -3,8 +3,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:smart_campus_companion/core/constants/color_constants.dart';
 import 'package:smart_campus_companion/core/routes/app_routes.dart';
 import 'package:smart_campus_companion/presentation/providers/home_notifier.dart';
+import 'package:smart_campus_companion/presentation/providers/home_state.dart';
 import 'package:smart_campus_companion/presentation/widgets/offline_banner.dart';
 import 'package:smart_campus_companion/data/models/models.dart';
+import 'package:smart_campus_companion/presentation/screens/announcements_screen.dart';
+import 'package:smart_campus_companion/presentation/screens/events_screen.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
@@ -14,6 +17,9 @@ class HomeScreen extends ConsumerStatefulWidget {
 }
 
 class _HomeScreenState extends ConsumerState<HomeScreen> with WidgetsBindingObserver {
+  int _selectedIndex = 0;
+  final PageController _pageController = PageController();
+
   @override
   void initState() {
     super.initState();
@@ -23,14 +29,24 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with WidgetsBindingObse
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
+    _pageController.dispose();
     super.dispose();
   }
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
-      ref.read(homeNotifierProvider.notifier).refresh();
+      if (_selectedIndex == 0) {
+        ref.read(homeNotifierProvider.notifier).refresh();
+      }
     }
+  }
+
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+      _pageController.jumpToPage(index);
+    });
   }
 
   @override
@@ -39,44 +55,97 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with WidgetsBindingObse
     final notifier = ref.read(homeNotifierProvider.notifier);
 
     return Scaffold(
-      backgroundColor: AppColors.background,
-      body: RefreshIndicator(
-        onRefresh: notifier.refresh,
-        color: AppColors.primary,
-        child: CustomScrollView(
-          slivers: [
-            // Offline Banner
-            if (homeState.isOffline)
-              const SliverToBoxAdapter(child: OfflineBanner()),
+      body: PageView(
+        controller: _pageController,
+        onPageChanged: (index) {
+          setState(() {
+            _selectedIndex = index;
+          });
+          if (index == 0) {
+            notifier.refresh();
+          }
+        },
+        children: [
+          // Home Page (Dashboard)
+          _buildHomePage(homeState, notifier),
 
-            // Header with Greeting
-            SliverToBoxAdapter(
-              child: _buildHeader(homeState.greeting),
-            ),
+          // News Page (Announcements)
+          const AnnouncementsScreen(),
 
-            // Today's Schedule Section
-            SliverToBoxAdapter(
-              child: _buildScheduleSection(homeState.todaySchedule),
-            ),
+          // Events Page
+          const EventsScreen(),
 
-            // 🔵 NEW: Timetable & Map Action Buttons
-            SliverToBoxAdapter(
-              child: _buildActionButtons(),
-            ),
+          // Settings Page
+          _buildSettingsPage(),
+        ],
+      ),
+      bottomNavigationBar: BottomNavigationBar(
+        type: BottomNavigationBarType.fixed,
+        currentIndex: _selectedIndex,
+        onTap: _onItemTapped,
+        backgroundColor: Colors.white,
+        selectedItemColor: AppColors.primary,
+        unselectedItemColor: Colors.grey,
+        selectedLabelStyle: const TextStyle(fontWeight: FontWeight.w600),
+        items: const [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home_outlined),
+            activeIcon: Icon(Icons.home),
+            label: 'Home',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.newspaper_outlined),
+            activeIcon: Icon(Icons.newspaper),
+            label: 'News',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.event_outlined),
+            activeIcon: Icon(Icons.event),
+            label: 'Events',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.settings_outlined),
+            activeIcon: Icon(Icons.settings),
+            label: 'Settings',
+          ),
+        ],
+      ),
+    );
+  }
 
-            // Upcoming Events Section
-            SliverToBoxAdapter(
-              child: _buildEventsSection(homeState.upcomingEvents),
-            ),
+  // ==================== HOME PAGE ====================
 
-            // Latest Announcements Section
-            SliverToBoxAdapter(
-              child: _buildAnnouncementsSection(homeState.recentAnnouncements),
-            ),
+  Widget _buildHomePage(HomeState homeState, HomeNotifier notifier) {
+    return RefreshIndicator(
+      onRefresh: notifier.refresh,
+      color: AppColors.primary,
+      child: CustomScrollView(
+        slivers: [
+          if (homeState.isOffline)
+            const SliverToBoxAdapter(child: OfflineBanner()),
 
-            const SliverToBoxAdapter(child: SizedBox(height: 80)),
-          ],
-        ),
+          SliverToBoxAdapter(
+            child: _buildHeader(homeState.greeting),
+          ),
+
+          SliverToBoxAdapter(
+            child: _buildScheduleSection(homeState.todaySchedule),
+          ),
+
+          SliverToBoxAdapter(
+            child: _buildActionButtons(),
+          ),
+
+          SliverToBoxAdapter(
+            child: _buildEventsSection(homeState.upcomingEvents),
+          ),
+
+          SliverToBoxAdapter(
+            child: _buildAnnouncementsSection(homeState.recentAnnouncements),
+          ),
+
+          const SliverToBoxAdapter(child: SizedBox(height: 80)),
+        ],
       ),
     );
   }
@@ -154,7 +223,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with WidgetsBindingObse
             child: const Row(
               children: [
                 Icon(Icons.school_outlined, color: Colors.white, size: 20),
-                SizedBox(width: 12),
+                const SizedBox(width: 12),
                 Text(
                   "Here's what's happening today",
                   style: TextStyle(color: Colors.white70, fontSize: 14),
@@ -245,6 +314,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with WidgetsBindingObse
   }
 
   Widget _buildScheduleCard(TimetableEntryModel class_) {
+    final color = Color(int.parse(class_.color.replaceFirst('#', '0xFF')));
+
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(16),
@@ -269,8 +340,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with WidgetsBindingObse
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
                 colors: [
-                  Color(int.parse(class_.color.replaceFirst('#', '0xFF'))).withOpacity(0.2),
-                  Color(int.parse(class_.color.replaceFirst('#', '0xFF'))).withOpacity(0.05),
+                  color.withOpacity(0.2),
+                  color.withOpacity(0.05),
                 ],
               ),
               borderRadius: BorderRadius.circular(12),
@@ -282,7 +353,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with WidgetsBindingObse
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
-                    color: Color(int.parse(class_.color.replaceFirst('#', '0xFF'))),
+                    color: color,
                   ),
                 ),
                 Text(
@@ -333,7 +404,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with WidgetsBindingObse
             width: 4,
             height: 50,
             decoration: BoxDecoration(
-              color: Color(int.parse(class_.color.replaceFirst('#', '0xFF'))),
+              color: color,
               borderRadius: BorderRadius.circular(2),
             ),
           ),
@@ -342,17 +413,14 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with WidgetsBindingObse
     );
   }
 
-  // 🔵 NEW: Action Buttons Widget (Timetable & Map)
   Widget _buildActionButtons() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
       child: Row(
         children: [
-          // Timetable Button
           Expanded(
             child: GestureDetector(
               onTap: () {
-                print('📅 Navigate to Timetable Screen');
                 Navigator.pushNamed(context, AppRoutes.timetable);
               },
               child: Container(
@@ -401,11 +469,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with WidgetsBindingObse
             ),
           ),
           const SizedBox(width: 16),
-          // Map Button
           Expanded(
             child: GestureDetector(
               onTap: () {
-                print('🗺️ Navigate to Map Screen');
                 Navigator.pushNamed(context, AppRoutes.campusMap);
               },
               child: Container(
@@ -459,6 +525,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with WidgetsBindingObse
   }
 
   Widget _buildEventsSection(List<EventModel> events) {
+    if (events.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24),
       child: Column(
@@ -489,7 +559,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with WidgetsBindingObse
                 ],
               ),
               TextButton(
-                onPressed: () => Navigator.pushNamed(context, AppRoutes.events),
+                onPressed: () {
+                  setState(() {
+                    _selectedIndex = 2;
+                    _pageController.jumpToPage(2);
+                  });
+                },
                 child: Text(
                   'View All',
                   style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.w600),
@@ -498,7 +573,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with WidgetsBindingObse
             ],
           ),
           const SizedBox(height: 16),
-          ...events.map((event) => _buildEventCard(event)),
+          ...events.take(3).map((event) => _buildEventCard(event)),
         ],
       ),
     );
@@ -570,7 +645,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with WidgetsBindingObse
                     const Icon(Icons.access_time, size: 12, color: AppColors.textSecondary),
                     const SizedBox(width: 4),
                     Text(
-                      '${event.startTime.hour}:${event.startTime.minute.toString().padLeft(2, '0')}',
+                      _formatTime(event.startTime.hour, event.startTime.minute),
                       style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
                     ),
                     const SizedBox(width: 12),
@@ -589,21 +664,17 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with WidgetsBindingObse
               ],
             ),
           ),
-          Container(
-            width: 32,
-            height: 32,
-            decoration: BoxDecoration(
-              color: AppColors.primary.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Icon(Icons.arrow_forward_ios, size: 14, color: AppColors.primary),
-          ),
+          Icon(Icons.chevron_right, color: Colors.grey.shade400, size: 20),
         ],
       ),
     );
   }
 
   Widget _buildAnnouncementsSection(List<AnnouncementModel> announcements) {
+    if (announcements.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
     return Padding(
       padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
       child: Column(
@@ -634,7 +705,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with WidgetsBindingObse
                 ],
               ),
               TextButton(
-                onPressed: () => Navigator.pushNamed(context, AppRoutes.announcements),
+                onPressed: () {
+                  setState(() {
+                    _selectedIndex = 1;
+                    _pageController.jumpToPage(1);
+                  });
+                },
                 child: Text(
                   'View All',
                   style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.w600),
@@ -643,7 +719,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with WidgetsBindingObse
             ],
           ),
           const SizedBox(height: 16),
-          ...announcements.map((ann) => _buildAnnouncementCard(ann)),
+          ...announcements.take(3).map((ann) => _buildAnnouncementCard(ann)),
         ],
       ),
     );
@@ -734,5 +810,135 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with WidgetsBindingObse
   String _getMonthAbbreviation(int month) {
     const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
     return months[month - 1];
+  }
+
+  String _formatTime(int hour, int minute) {
+    final period = hour >= 12 ? 'PM' : 'AM';
+    final displayHour = hour == 0 ? 12 : (hour > 12 ? hour - 12 : hour);
+    return '$displayHour:${minute.toString().padLeft(2, '0')} $period';
+  }
+
+  // ==================== SETTINGS PAGE ====================
+
+  Widget _buildSettingsPage() {
+    return Scaffold(
+      backgroundColor: AppColors.background,
+      appBar: AppBar(
+        title: const Text('Settings'),
+        backgroundColor: AppColors.primary,
+        foregroundColor: Colors.white,
+      ),
+      body: ListView(
+        children: [
+          const SizedBox(height: 20),
+          _buildSettingsTile(
+            icon: Icons.person_outline,
+            title: 'Profile',
+            subtitle: 'View and edit your profile',
+            onTap: () => Navigator.pushNamed(context, AppRoutes.profile),
+          ),
+          _buildSettingsTile(
+            icon: Icons.dark_mode_outlined,
+            title: 'Dark Mode',
+            subtitle: 'Toggle dark/light theme',
+            trailing: Switch(
+              value: false,
+              onChanged: (value) {},
+              activeColor: AppColors.primary,
+            ),
+          ),
+          _buildSettingsTile(
+            icon: Icons.fingerprint,
+            title: 'Biometric Login',
+            subtitle: 'Use fingerprint to login',
+            trailing: Switch(
+              value: true,
+              onChanged: (value) {},
+              activeColor: AppColors.primary,
+            ),
+          ),
+          _buildSettingsTile(
+            icon: Icons.notifications_outlined,
+            title: 'Notifications',
+            subtitle: 'Receive class reminders',
+            trailing: Switch(
+              value: true,
+              onChanged: (value) {},
+              activeColor: AppColors.primary,
+            ),
+          ),
+          _buildSettingsTile(
+            icon: Icons.map_outlined,
+            title: 'Campus Map',
+            subtitle: 'View interactive campus map',
+            onTap: () => Navigator.pushNamed(context, AppRoutes.campusMap),
+          ),
+          _buildSettingsTile(
+            icon: Icons.info_outline,
+            title: 'About',
+            subtitle: 'App version 1.0.0',
+            onTap: () {
+              showAboutDialog(
+                context: context,
+                applicationName: 'SmartCampus Companion',
+                applicationVersion: '1.0.0',
+                applicationLegalese: '© 2024 SmartCampus',
+                children: const [
+                  SizedBox(height: 8),
+                  Text('Your campus companion for schedules, events, and navigation.'),
+                ],
+              );
+            },
+          ),
+          const Divider(),
+          _buildSettingsTile(
+            icon: Icons.logout,
+            title: 'Logout',
+            subtitle: 'Sign out of your account',
+            iconColor: Colors.red,
+            onTap: () async {
+              final confirmed = await showDialog(
+                context: context,
+                builder: (context) => AlertDialog(
+                  title: const Text('Logout'),
+                  content: const Text('Are you sure you want to logout?'),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(context, false),
+                      child: const Text('Cancel'),
+                    ),
+                    TextButton(
+                      onPressed: () => Navigator.pop(context, true),
+                      child: const Text('Logout', style: TextStyle(color: Colors.red)),
+                    ),
+                  ],
+                ),
+              );
+              if (confirmed == true) {
+                Navigator.pushReplacementNamed(context, AppRoutes.login);
+              }
+            },
+          ),
+          const SizedBox(height: 40),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSettingsTile({
+    required IconData icon,
+    required String title,
+    required String subtitle,
+    Widget? trailing,
+    VoidCallback? onTap,
+    Color? iconColor,
+  }) {
+    return ListTile(
+      leading: Icon(icon, color: iconColor ?? AppColors.primary),
+      title: Text(title),
+      subtitle: Text(subtitle),
+      trailing: trailing ?? (onTap != null ? const Icon(Icons.chevron_right) : null),
+      onTap: onTap,
+    );
   }
 }
