@@ -8,6 +8,7 @@ import 'package:smart_campus_companion/presentation/screens/map_screen.dart';
 
 import '../../presentation/screens/announcements_screen.dart';
 import '../../presentation/screens/events_screen.dart';
+import '../../presentation/screens/profile_screen.dart';
 import '../../presentation/screens/register_screen.dart';
 
 class RouteGenerator {
@@ -22,7 +23,6 @@ class RouteGenerator {
         return MaterialPageRoute(builder: (_) => const RegisterScreen()); // ← ADD THIS
       case AppRoutes.home:
         return MaterialPageRoute(builder: (_) => const HomeScreen());
-
       case AppRoutes.timetable:
         return MaterialPageRoute(builder: (_) => const TimetableScreen());
 
@@ -32,6 +32,9 @@ class RouteGenerator {
         return MaterialPageRoute(builder: (_) => const AnnouncementsScreen());
       case AppRoutes.events:
         return MaterialPageRoute(builder: (_) => const EventsScreen());
+
+      case AppRoutes.profile:
+        return MaterialPageRoute(builder: (_) => const ProfileScreen());
       default:
         return MaterialPageRoute(
           builder: (_) => const Scaffold(
